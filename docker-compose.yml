@@ -1,0 +1,44 @@
+nginx:
+  build: ./nginx/
+  ports:
+    - 81:80
+  links:
+    - php
+  volumes_from:
+    - php
+
+php:
+  build: ./php/
+  expose:
+    - 9000
+  links:
+    - mysql
+  volumes:
+    - ./www/html/:/var/www/html/
+
+mysql:
+  image: mysql:latest
+  ports:
+     - "3307:3306"
+  volumes_from:
+    - mysql-data
+  environment:
+    MYSQL_ROOT_PASSWORD: secret
+    MYSQL_DATABASE: laravel_db
+    MYSQL_USER: user
+    MYSQL_PASSWORD: password
+
+mysql-data:
+  image: mysql:latest
+  volumes:
+    - /var/lib/mysql
+  command: "true"
+
+phpmyadmin:
+  image: phpmyadmin/phpmyadmin
+  ports:
+    - 8080:80
+  links:
+    - mysql
+  environment:
+    PMA_HOST: mysql
